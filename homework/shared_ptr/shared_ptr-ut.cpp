@@ -50,6 +50,19 @@ TEST_F(SharedPtrTest, shouldConvertSharedPtrToBool) {
     ASSERT_FALSE(ptr2);
 }
 
+TEST_F(SharedPtrTest, shouldResetSharedPtr) {
+    ptr.reset();
+
+    ASSERT_EQ(ptr.get(), nullptr);
+
+    constexpr int valueAfterReset = 6;
+    int* newPtr = new int{valueAfterReset};
+
+    ptr.reset(newPtr);
+
+    ASSERT_EQ(*ptr, valueAfterReset);
+}
+
 TEST(SharedPtrArrowOperator, shouldUseArrowOperator) {
     cs::shared_ptr<A> ptr(new A{});
 
