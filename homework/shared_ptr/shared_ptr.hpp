@@ -31,9 +31,8 @@ public:
     T* get() const noexcept { return ptr_; }
     size_t use_count() const noexcept;
 
-    void reset() noexcept;
     void reset(
-        T* newPtr,
+        T* newPtr = nullptr,
         std::function<void(T*)> newDeleter = [](T* ptrToDelete) { delete ptrToDelete; });
 
 private:
@@ -109,21 +108,6 @@ size_t shared_ptr<T>::use_count() const noexcept {
         return controlBlock_->getSharedRefs();
     }
     return 0;
-}
-
-template <typename T>
-void shared_ptr<T>::reset() noexcept {
-    if (controlBlock_) {
-        if (controlBlock_->getSharedRefs() == 1) {
-            controlBlock_->defaultDeleter(ptr_);
-            delete controlBlock_;
-        } else {
-            controlBlock_->decrementSharedRefs();
-        }
-    }
-
-    controlBlock_ = new SharedControlBlock<T>{};
-    ptr_ = nullptr;
 }
 
 template <typename T>
