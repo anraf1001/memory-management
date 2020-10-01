@@ -34,9 +34,11 @@ unique_ptr<T>::unique_ptr(unique_ptr&& otherPtr) {
 }
 
 template <typename T>
-unique_ptr<T>& unique_ptr<T>::operator=(unique_ptr<T>&& otherPtr){
-    delete ptr_;
-    ptr_ = otherPtr.release();
+unique_ptr<T>& unique_ptr<T>::operator=(unique_ptr<T>&& otherPtr) {
+    if (ptr_ != otherPtr.get()) {
+        delete ptr_;
+        ptr_ = otherPtr.release();
+    }
     return *this;
 }
 
