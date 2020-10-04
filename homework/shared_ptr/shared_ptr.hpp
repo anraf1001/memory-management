@@ -2,7 +2,13 @@
 
 #include <functional>
 
+namespace cs {
+template <typename T>
+class shared_ptr;
+}  // namespace cs
+
 #include "sharedControlBlock.hpp"
+#include "weak_ptr.hpp"
 
 namespace cs {
 template <typename T>
@@ -16,6 +22,7 @@ public:
         : ptr_(ptr), controlBlock_(new SharedControlBlock<T>{defDeleter}) {}
     shared_ptr(std::nullptr_t, std::function<void(T*)> defDeleter)
         : controlBlock_(new SharedControlBlock<T>{defDeleter}) {}
+    explicit shared_ptr(const weak_ptr<T>& weakPtr);
 
     shared_ptr(const shared_ptr& other) noexcept;
     shared_ptr(shared_ptr&& other) noexcept;
@@ -53,6 +60,12 @@ void shared_ptr<T>::deleteSeq() {
             delete controlBlock_;
         }
     }
+}
+
+template <typename T>
+shared_ptr<T>::shared_ptr(const weak_ptr<T>& weakPtr)
+    : ptr_(weakPtr.ptr_), controlBlock_(weakPtr.controlBlock_) {
+    controlBlock_->incrementSharedRefs();
 }
 
 template <typename T>

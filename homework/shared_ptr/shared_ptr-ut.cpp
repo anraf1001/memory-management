@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "shared_ptr.hpp"
+#include "weak_ptr.hpp"
 
 constexpr int initialValue = 5;
 
@@ -67,4 +68,12 @@ TEST(SharedPtrArrowOperator, shouldUseArrowOperator) {
     cs::shared_ptr<A> ptr(new A{});
 
     ASSERT_EQ(ptr->foo(), initialValue);
+}
+
+TEST_F(SharedPtrTest, shouldCreateSharedPtrFromWeakPtr) {
+    cs::weak_ptr<int> wptr{ptr};
+
+    cs::shared_ptr<int> sptr{wptr};
+
+    ASSERT_EQ(sptr.get(), ptr.get());
 }
