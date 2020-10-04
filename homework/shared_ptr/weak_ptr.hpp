@@ -88,11 +88,10 @@ weak_ptr<T>& weak_ptr<T>::operator=(weak_ptr<T>&& r) noexcept {
 template <typename T>
 weak_ptr<T>::~weak_ptr() {
     if (controlBlock_) {
-        if (controlBlock_->getSharedRefs() == 1 && controlBlock_->getWeakRefs() == 1) {
+        controlBlock_->decrementWeakRefs();
+        if (controlBlock_->getSharedRefs() == 0 && controlBlock_->getWeakRefs() == 0) {
             controlBlock_->defaultDeleter(ptr_);
             delete controlBlock_;
-        } else {
-            controlBlock_->decrementWeakRefs();
         }
     }
 }
@@ -120,13 +119,13 @@ cs::shared_ptr<T> weak_ptr<T>::lock() const noexcept {
 template <typename T>
 void weak_ptr<T>::reset() noexcept {
     if (controlBlock_) {
-        if (controlBlock_->getWeakRefs() == 1 && controlBlock_->getSharedRefs() == 1) {
+        controlBlock_->decrementWeakRefs();
+        if (controlBlock_->getSharedRefs() == 0 && controlBlock_->getWeakRefs() == 0) {
             controlBlock_->defaultDeleter(ptr_);
             delete controlBlock_;
-        } else {
-            controlBlock_->decrementWeakRefs();
         }
     }
+
     ptr_ = nullptr;
     controlBlock_ = nullptr;
 }
