@@ -9,6 +9,11 @@ void customDeleter(int* ptr) {
     delete ptr;
 }
 
+struct Node {
+    cs::shared_ptr<Node> child;
+    cs::weak_ptr<Node> parent;
+};
+
 int main() {
     cs::shared_ptr<int> ptr(new int{5});
     auto ptr2(ptr);
@@ -33,6 +38,12 @@ int main() {
     cs::shared_ptr<int> sptr1{new int{5}};
     cs::weak_ptr<int> wptr4{sptr1};
     std::cout << wptr4.use_count() << '\n';
+
+    cs::shared_ptr<Node> root(new Node{});
+    cs::shared_ptr<Node> child(new Node{});
+
+    root->child = child;
+    child->parent = root;
 
     return 0;
 }
