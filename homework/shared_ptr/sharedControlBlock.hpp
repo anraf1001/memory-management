@@ -1,7 +1,6 @@
 #pragma once
 
 #include <atomic>
-#include <cstddef>
 #include <functional>
 
 template <typename T>
@@ -22,5 +21,5 @@ public:
 
 private:
     std::atomic<size_t> sharedRefs_ = 1;
-    std::atomic<size_t> weakRefs_ = 1;
+    std::atomic<size_t> weakRefs_ = 0;
 };
