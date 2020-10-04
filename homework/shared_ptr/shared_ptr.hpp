@@ -42,6 +42,18 @@ private:
     friend class weak_ptr;
 };
 
+namespace {
+auto deleteSeq = [](auto ptr, auto controlBlock) {
+    if (controlBlock) {
+        controlBlock->decrementSharedRefs();
+        if (controlBlock->getSharedRefs() == 0 && controlBlock->getWeakRefs() == 0) {
+            controlBlock->defaultDeleter(ptr);
+            delete controlBlock;
+        }
+    }
+};
+}
+
 template <typename T>
 shared_ptr<T>::shared_ptr(const shared_ptr<T>& other) noexcept {
     if (this != &other) {
@@ -61,25 +73,13 @@ shared_ptr<T>::shared_ptr(shared_ptr&& other) noexcept {
 
 template <typename T>
 shared_ptr<T>::~shared_ptr() {
-    if (controlBlock_) {
-        controlBlock_->decrementSharedRefs();
-        if (controlBlock_->getSharedRefs() == 0 && controlBlock_->getWeakRefs() == 0) {
-            controlBlock_->defaultDeleter(ptr_);
-            delete controlBlock_;
-        }
-    }
+    deleteSeq(ptr_, controlBlock_);
 }
 
 template <typename T>
 shared_ptr<T>& shared_ptr<T>::operator=(const shared_ptr<T>& other) noexcept {
     if (this != &other) {
-        if (controlBlock_) {
-            controlBlock_->decrementSharedRefs();
-            if (controlBlock_->getSharedRefs() == 0 && controlBlock_->getWeakRefs() == 0) {
-                controlBlock_->defaultDeleter(ptr_);
-                delete controlBlock_;
-            }
-        }
+        deleteSeq(ptr_, controlBlock_);
 
         ptr_ = other.ptr_;
         other.controlBlock_->incrementSharedRefs();
@@ -90,13 +90,7 @@ shared_ptr<T>& shared_ptr<T>::operator=(const shared_ptr<T>& other) noexcept {
 
 template <typename T>
 shared_ptr<T>& shared_ptr<T>::operator=(shared_ptr<T>&& other) noexcept {
-    if (controlBlock_) {
-        controlBlock_->decrementSharedRefs();
-        if (controlBlock_->getSharedRefs() == 0 && controlBlock_->getWeakRefs() == 0) {
-            controlBlock_->defaultDeleter(ptr_);
-            delete controlBlock_;
-        }
-    }
+    deleteSeq(ptr_, controlBlock_);
 
     ptr_ = other.ptr_;
     controlBlock_ = other.controlBlock_;
@@ -115,13 +109,7 @@ size_t shared_ptr<T>::use_count() const noexcept {
 
 template <typename T>
 void shared_ptr<T>::reset(T* newPtr, std::function<void(T*)> newDeleter) {
-    if (controlBlock_) {
-        controlBlock_->decrementSharedRefs();
-        if (controlBlock_->getSharedRefs() == 0 && controlBlock_->getWeakRefs() == 0) {
-            controlBlock_->defaultDeleter(ptr_);
-            delete controlBlock_;
-        }
-    }
+    deleteSeq(ptr_, controlBlock_);
 
     controlBlock_ = new SharedControlBlock<T>{newDeleter};
     ptr_ = newPtr;
