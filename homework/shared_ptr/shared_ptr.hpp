@@ -38,20 +38,21 @@ public:
 private:
     T* ptr_ = nullptr;
     SharedControlBlock<T>* controlBlock_ = nullptr;
+
+    void deleteSeq();
     template <typename>
     friend class weak_ptr;
 };
 
-namespace {
-auto deleteSeq = [](auto ptr, auto controlBlock) {
-    if (controlBlock) {
-        controlBlock->decrementSharedRefs();
-        if (controlBlock->getSharedRefs() == 0 && controlBlock->getWeakRefs() == 0) {
-            controlBlock->defaultDeleter(ptr);
-            delete controlBlock;
+template <typename T>
+void shared_ptr<T>::deleteSeq() {
+    if (controlBlock_) {
+        controlBlock_->decrementSharedRefs();
+        if (controlBlock_->getSharedRefs() == 0 && controlBlock_->getWeakRefs() == 0) {
+            controlBlock_->defaultDeleter(ptr_);
+            delete controlBlock_;
         }
     }
-};
 }
 
 template <typename T>
@@ -73,13 +74,13 @@ shared_ptr<T>::shared_ptr(shared_ptr&& other) noexcept {
 
 template <typename T>
 shared_ptr<T>::~shared_ptr() {
-    deleteSeq(ptr_, controlBlock_);
+    deleteSeq();
 }
 
 template <typename T>
 shared_ptr<T>& shared_ptr<T>::operator=(const shared_ptr<T>& other) noexcept {
     if (this != &other) {
-        deleteSeq(ptr_, controlBlock_);
+        deleteSeq();
 
         ptr_ = other.ptr_;
         other.controlBlock_->incrementSharedRefs();
@@ -90,7 +91,7 @@ shared_ptr<T>& shared_ptr<T>::operator=(const shared_ptr<T>& other) noexcept {
 
 template <typename T>
 shared_ptr<T>& shared_ptr<T>::operator=(shared_ptr<T>&& other) noexcept {
-    deleteSeq(ptr_, controlBlock_);
+    deleteSeq();
 
     ptr_ = other.ptr_;
     controlBlock_ = other.controlBlock_;
@@ -109,7 +110,7 @@ size_t shared_ptr<T>::use_count() const noexcept {
 
 template <typename T>
 void shared_ptr<T>::reset(T* newPtr, std::function<void(T*)> newDeleter) {
-    deleteSeq(ptr_, controlBlock_);
+    deleteSeq();
 
     controlBlock_ = new SharedControlBlock<T>{newDeleter};
     ptr_ = newPtr;
