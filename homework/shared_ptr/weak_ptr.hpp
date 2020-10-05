@@ -126,9 +126,7 @@ bool weak_ptr<T>::expired() const noexcept {
 
 template <typename T>
 cs::shared_ptr<T> weak_ptr<T>::lock() const noexcept {
-    //return expired() ? cs::shared_ptr<T>() : cs::shared_ptr<T>(*this);
-    //need copy constructor which takes weak_ptr
-    return expired() ? cs::shared_ptr<T>() : cs::shared_ptr<T>(ptr_);
+    return expired() ? cs::shared_ptr<T>() : cs::shared_ptr<T>(*this);
 }
 
 template <typename T>
