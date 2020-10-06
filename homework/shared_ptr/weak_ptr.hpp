@@ -15,7 +15,7 @@ namespace cs {
 template <typename T>
 class weak_ptr {
 public:
-    constexpr weak_ptr() noexcept = default;
+    weak_ptr() noexcept = default;
     weak_ptr(const weak_ptr& r) noexcept;
     weak_ptr(const cs::shared_ptr<T>& r) noexcept;
     weak_ptr(weak_ptr&& r) noexcept;

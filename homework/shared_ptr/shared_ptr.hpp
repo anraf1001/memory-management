@@ -14,8 +14,8 @@ namespace cs {
 template <typename T>
 class shared_ptr {
 public:
-    constexpr shared_ptr() noexcept = default;
-    constexpr shared_ptr(std::nullptr_t) noexcept {}
+    shared_ptr() noexcept = default;
+    explicit shared_ptr(std::nullptr_t) noexcept {}
     explicit shared_ptr(T* ptr)
         : ptr_(ptr), controlBlock_(new SharedControlBlock<T>{}) {}
     shared_ptr(T* ptr, std::function<void(T*)> defDeleter)
