@@ -52,6 +52,15 @@ private:
 };
 
 template <typename T>
+struct blockObject {
+    T object;
+    SharedControlBlock<T> controlBlock;
+    template <typename... Args>
+    blockObject(Args&&... args)
+        : object(args...) {}
+};
+
+template <typename T>
 void shared_ptr<T>::deleteSeq() {
     if (controlBlock_) {
         controlBlock_->decrementSharedRefs();
