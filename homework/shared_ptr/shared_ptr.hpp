@@ -42,6 +42,9 @@ public:
         T* newPtr = nullptr,
         std::function<void(T*)> newDeleter = [](T* ptrToDelete) { delete ptrToDelete; });
 
+    template <class _T, class... Args>
+    friend shared_ptr<_T> make_shared(Args&&... args);
+
 private:
     T* ptr_ = nullptr;
     SharedControlBlock<T>* controlBlock_ = nullptr;
