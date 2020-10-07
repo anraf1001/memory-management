@@ -42,6 +42,9 @@ public:
         T* newPtr = nullptr,
         std::function<void(T*)> newDeleter = [](T* ptrToDelete) { delete ptrToDelete; });
 
+    template <class _T, class... Args>
+    friend shared_ptr<_T> make_shared(Args&&... args);
+
 private:
     T* ptr_ = nullptr;
     SharedControlBlock<T>* controlBlock_ = nullptr;
@@ -49,6 +52,15 @@ private:
     void deleteSeq();
     template <typename>
     friend class weak_ptr;
+};
+
+template <typename T>
+struct blockObject {
+    T object;
+    SharedControlBlock<T> controlBlock;
+    template <typename... Args>
+    blockObject(Args&&... args)
+        : object(args...) {}
 };
 
 template <typename T>
