@@ -34,7 +34,7 @@ public:
 
     T& operator*() const noexcept { return *ptr_; }
     T* operator->() const noexcept { return ptr_; }
-    explicit operator bool() const noexcept { return ptr_; }
+    explicit operator bool() const noexcept { return ptr_ != nullptr; }
 
     T* get() const noexcept { return ptr_; }
     size_t use_count() const noexcept;
@@ -75,12 +75,9 @@ shared_ptr<T>::shared_ptr(const weak_ptr<T>& weakPtr)
 }
 
 template <typename T>
-shared_ptr<T>::shared_ptr(const shared_ptr<T>& other) noexcept {
-    if (this != &other) {
-        ptr_ = other.ptr_;
-        other.controlBlock_->incrementSharedRefs();
-        controlBlock_ = other.controlBlock_;
-    }
+shared_ptr<T>::shared_ptr(const shared_ptr<T>& other) noexcept
+    : ptr_(other.ptr_), controlBlock_(other.controlBlock_) {
+    other.controlBlock_->incrementSharedRefs();
 }
 
 template <typename T>
