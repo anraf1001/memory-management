@@ -45,7 +45,7 @@ public:
 
 private:
     T* ptr_ = nullptr;
-    SharedControlBlock<T>* controlBlock_;
+    SharedControlBlock<T>* controlBlock_ = nullptr;
 
     explicit shared_ptr(SharedControlBlockObj<T>* block)
         : controlBlock_(block) { ptr_ = block->getPtr(); }
