@@ -23,8 +23,6 @@ public:
 protected:
     std::atomic<size_t> sharedRefs_ = 1;
     std::atomic<size_t> weakRefs_ = 0;
-
-    virtual void dispose() = 0;
 };
 
 template <typename T>
@@ -35,7 +33,7 @@ public:
         std::function<void(T*)> defDeleter = [](T* ptrToDelete) { delete ptrToDelete; })
         : object_(ptr), deleter(defDeleter) {}
 
-    ~SharedControlBlockPtr() { dispose(); }
+    ~SharedControlBlockPtr() { deleter(object_); }
 
     T* getPtr() override { return object_; }
 
@@ -43,8 +41,6 @@ private:
     T* object_;
 
     std::function<void(T*)> deleter;
-
-    void dispose() override { deleter(object_); }
 };
 
 template <typename T>
@@ -57,6 +53,4 @@ public:
 
 private:
     T object_;
-
-    void dispose() override {}
 };
