@@ -45,10 +45,10 @@ TEST_F(SharedPtrTest, shouldReturnUseCount) {
 }
 
 TEST_F(SharedPtrTest, shouldConvertSharedPtrToBool) {
-    // cs::shared_ptr<int> ptr2;
+    cs::shared_ptr<int> ptr2;
 
     ASSERT_TRUE(ptr);
-    // ASSERT_FALSE(ptr2);
+    ASSERT_FALSE(ptr2);
 }
 
 TEST_F(SharedPtrTest, shouldResetSharedPtr) {
