@@ -69,7 +69,7 @@ void shared_ptr<T>::deleteSeq() {
     if (controlBlock_) {
         controlBlock_->decrementSharedRefs();
         if (controlBlock_->getSharedRefs() == 0 && controlBlock_->getWeakRefs() == 0) {
-            controlBlock_->defaultDeleter(ptr_);
+            controlBlock_->deleter(ptr_);
             delete controlBlock_;
         }
     }

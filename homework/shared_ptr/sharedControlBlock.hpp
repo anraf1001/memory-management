@@ -7,7 +7,7 @@ template <typename T>
 class SharedControlBlock {
 public:
     SharedControlBlock(std::function<void(T*)> defDeleter = [](T* ptrToDelete) { delete ptrToDelete; })
-        : defaultDeleter(defDeleter) {}
+        : deleter(defDeleter) {}
 
     void incrementSharedRefs() { ++sharedRefs_; }
     void decrementSharedRefs() { --sharedRefs_; }
@@ -17,7 +17,7 @@ public:
     void decrementWeakRefs() { --weakRefs_; }
     size_t getWeakRefs() const { return weakRefs_.load(); }
 
-    std::function<void(T*)> defaultDeleter;
+    std::function<void(T*)> deleter;
 
 private:
     std::atomic<size_t> sharedRefs_ = 1;
