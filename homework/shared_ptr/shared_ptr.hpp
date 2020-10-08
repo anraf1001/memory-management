@@ -56,11 +56,12 @@ private:
 
 template <typename T>
 struct blockObject {
-    T object;
-    SharedControlBlock<T> controlBlock;
     template <typename... Args>
     blockObject(Args&&... args)
         : object(args...) {}
+
+    T object;
+    SharedControlBlock<T> controlBlock;
 };
 
 template <typename T>
