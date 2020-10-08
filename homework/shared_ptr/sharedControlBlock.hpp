@@ -9,7 +9,7 @@ public:
     virtual ~SharedControlBlock() = default;
 
     void incrementSharedRefs() { ++sharedRefs_; }
-    void decrementSharedRefs() { --sharedRefs_; }
+    void decrementSharedRefs() { sharedRefs_.fetch_sub(1); }
     size_t getSharedRefs() const { return sharedRefs_.load(); }
 
     void incrementWeakRefs() { ++weakRefs_; }
