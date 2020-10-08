@@ -44,7 +44,6 @@ void weak_ptr<T>::deleteSeq() {
     if (controlBlock_) {
         controlBlock_->decrementWeakRefs();
         if (controlBlock_->getSharedRefs() == 0 && controlBlock_->getWeakRefs() == 0) {
-            controlBlock_->deleter(ptr_);
             delete controlBlock_;
         }
     }

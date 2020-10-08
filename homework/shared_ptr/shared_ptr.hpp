@@ -15,13 +15,14 @@ template <typename T>
 class shared_ptr {
 public:
     shared_ptr() noexcept = default;
-    explicit shared_ptr(std::nullptr_t) noexcept {}
+    explicit shared_ptr(std::nullptr_t) noexcept
+        : controlBlock_(new SharedControlBlockPtr<T>{}) {}
     explicit shared_ptr(T* ptr)
-        : ptr_(ptr), controlBlock_(new SharedControlBlock<T>{}) {}
+        : ptr_(ptr), controlBlock_(new SharedControlBlockPtr<T>{ptr}) {}
     shared_ptr(T* ptr, std::function<void(T*)> defDeleter)
-        : ptr_(ptr), controlBlock_(new SharedControlBlock<T>{defDeleter}) {}
+        : ptr_(ptr), controlBlock_(new SharedControlBlockPtr<T>{ptr, defDeleter}) {}
     shared_ptr(std::nullptr_t, std::function<void(T*)> defDeleter)
-        : controlBlock_(new SharedControlBlock<T>{defDeleter}) {}
+        : controlBlock_(new SharedControlBlockPtr<T>{nullptr, defDeleter}) {}
     explicit shared_ptr(const weak_ptr<T>& weakPtr);
 
     shared_ptr(const shared_ptr& other) noexcept;
@@ -42,26 +43,19 @@ public:
         T* newPtr = nullptr,
         std::function<void(T*)> newDeleter = [](T* ptrToDelete) { delete ptrToDelete; });
 
-    template <class _T, class... Args>
-    friend shared_ptr<_T> make_shared(Args&&... args);
-
 private:
     T* ptr_ = nullptr;
-    SharedControlBlock<T>* controlBlock_ = nullptr;
+    SharedControlBlock<T>* controlBlock_;
+
+    explicit shared_ptr(SharedControlBlockObj<T>* block)
+        : controlBlock_(block) { ptr_ = block->getPtr(); }
 
     void deleteSeq();
     template <typename>
     friend class weak_ptr;
-};
 
-template <typename T>
-struct blockObject {
-    template <typename... Args>
-    blockObject(Args&&... args)
-        : object(args...) {}
-
-    T object;
-    SharedControlBlock<T> controlBlock;
+    template <class _T, class... Args>
+    friend shared_ptr<_T> make_shared(Args&&... args);
 };
 
 template <typename T>
@@ -69,7 +63,6 @@ void shared_ptr<T>::deleteSeq() {
     if (controlBlock_) {
         controlBlock_->decrementSharedRefs();
         if (controlBlock_->getSharedRefs() == 0 && controlBlock_->getWeakRefs() == 0) {
-            controlBlock_->deleter(ptr_);
             delete controlBlock_;
         }
     }
@@ -138,7 +131,7 @@ template <typename T>
 void shared_ptr<T>::reset(T* newPtr, std::function<void(T*)> newDeleter) {
     deleteSeq();
 
-    controlBlock_ = new SharedControlBlock<T>{newDeleter};
+    controlBlock_ = new SharedControlBlockPtr<T>{newPtr, newDeleter};
     ptr_ = newPtr;
 }
 
