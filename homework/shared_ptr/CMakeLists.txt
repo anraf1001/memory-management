@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(FLAGS -Wall -Wextra -Werror -Wconversion -pedantic -g)
-set(SANITS -fsanitize=leak -fsanitize=undefined)
+set(SANITS -fsanitize=address -fsanitize=undefined)
 
 #####################################################################
 # Download and unpack googletest at configure time
@@ -40,7 +40,7 @@ add_executable(${PROJECT_NAME} main.cpp)
 target_compile_options(${PROJECT_NAME} PRIVATE ${FLAGS})
 target_link_options(${PROJECT_NAME} PRIVATE ${SANITS})
 
-add_executable(${PROJECT_NAME}-ut shared_ptr-ut.cpp sharedControlBlock-ut.cpp make_shared-ut.cpp weak_ptr-ut.cpp)
+add_executable(${PROJECT_NAME}-ut shared_ptr-ut.cpp make_shared-ut.cpp weak_ptr-ut.cpp)
 target_compile_options(${PROJECT_NAME}-ut PRIVATE ${FLAGS})
 target_link_libraries(${PROJECT_NAME}-ut PUBLIC gtest_main)
 target_link_options(${PROJECT_NAME}-ut PRIVATE ${SANITS})

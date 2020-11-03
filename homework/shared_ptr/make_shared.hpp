@@ -6,13 +6,9 @@
 
 namespace cs {
 
-template <typename _T, typename... Args>
-shared_ptr<_T> make_shared(Args&&... args) {
-    cs::shared_ptr<_T> ptr;
-    auto temporary = new blockObject<_T>(std::forward<Args>(args)...);
-    ptr.ptr_ = &temporary->object;
-    ptr.controlBlock_ = &temporary->controlBlock;
-    return ptr;
+template <typename T, typename... Args>
+shared_ptr<T> make_shared(Args&&... args) {
+    return cs::shared_ptr<T>(new SharedControlBlockObj<T>(std::forward<Args>(args)...));
 }
 
 }  // namespace cs

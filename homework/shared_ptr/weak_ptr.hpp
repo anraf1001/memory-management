@@ -2,15 +2,13 @@
 
 #include <iostream>
 
-namespace cs {
-template <typename T>
-class weak_ptr;
-}  // namespace cs
-
 #include "sharedControlBlock.hpp"
 #include "shared_ptr.hpp"
 
 namespace cs {
+
+template <typename T>
+class shared_ptr;
 
 template <typename T>
 class weak_ptr {
@@ -44,7 +42,6 @@ void weak_ptr<T>::deleteSeq() {
     if (controlBlock_) {
         controlBlock_->decrementWeakRefs();
         if (controlBlock_->getSharedRefs() == 0 && controlBlock_->getWeakRefs() == 0) {
-            controlBlock_->defaultDeleter(ptr_);
             delete controlBlock_;
         }
     }
@@ -76,6 +73,8 @@ weak_ptr<T>::weak_ptr(weak_ptr<T>&& r) noexcept
 template <typename T>
 weak_ptr<T>& weak_ptr<T>::operator=(const weak_ptr<T>& r) noexcept {
     if (this != &r) {
+        deleteSeq();
+
         ptr_ = r.ptr_;
         controlBlock_ = r.controlBlock_;
         if (controlBlock_) {
@@ -87,10 +86,14 @@ weak_ptr<T>& weak_ptr<T>::operator=(const weak_ptr<T>& r) noexcept {
 
 template <typename T>
 weak_ptr<T>& weak_ptr<T>::operator=(const shared_ptr<T>& r) noexcept {
-    ptr_ = r.ptr_;
-    controlBlock_ = r.controlBlock_;
     if (controlBlock_) {
-        controlBlock_->incrementWeakRefs();
+        deleteSeq();
+
+        ptr_ = r.ptr_;
+        controlBlock_ = r.controlBlock_;
+        if (controlBlock_) {
+            controlBlock_->incrementWeakRefs();
+        }
     }
     return *this;
 }
@@ -98,6 +101,8 @@ weak_ptr<T>& weak_ptr<T>::operator=(const shared_ptr<T>& r) noexcept {
 template <typename T>
 weak_ptr<T>& weak_ptr<T>::operator=(weak_ptr<T>&& r) noexcept {
     if (this != &r) {
+        deleteSeq();
+
         ptr_ = r.ptr_;
         controlBlock_ = r.controlBlock_;
         r.ptr_ = nullptr;

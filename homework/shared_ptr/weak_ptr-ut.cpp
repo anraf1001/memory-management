@@ -23,8 +23,8 @@ TEST(WeakPtrTest, WeakPtrLockFunction) {
     cs::shared_ptr<int> sptr{new int{initialValue}};
     cs::weak_ptr<int> ptr{sptr};
     cs::shared_ptr<int> sptr2{ptr.lock()};
-    auto isShared = [&sptr2]() { return typeid(sptr2) == typeid(cs::shared_ptr<int>); }();
-    ASSERT_TRUE(isShared);
+
+    ASSERT_EQ(sptr.get(), sptr2.get());
 }
 
 TEST(WeakPtrTest, SharedPtrCreatedFromWeakPtrShouldHaveSameValueAsOtherShared) {
@@ -40,7 +40,7 @@ TEST(WeakPtrTest, WeakPtrExpireFunctionShouldReturnFalse) {
     ASSERT_FALSE(wptr.expired());
 }
 
-TEST(WeakPtrTest, WeakPtrInitializedWithSharedAfterUseOfResetFunctionShouldDecrementUserCount) {
+TEST(WeakPtrTest, WeakPtrInitializedWithSharedAfterUseOfResetFunctionShouldBeExpired) {
     cs::shared_ptr<int> sptr{new int{initialValue}};
     cs::weak_ptr<int> ptr{sptr};
     ptr.reset();
