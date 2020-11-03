@@ -76,3 +76,17 @@ TEST_F(SharedPtrTest, shouldCreateSharedPtrFromWeakPtr) {
 
     ASSERT_EQ(sptr.get(), ptr.get());
 }
+
+TEST_F(SharedPtrTest, shouldIncrementCounterIfCopyAssignmentIsUsed) {
+    constexpr int expectedCounterValue = 2;
+    cs::shared_ptr<int> copyPtr;
+    copyPtr = ptr;
+    ASSERT_EQ(copyPtr.use_count(), expectedCounterValue);
+}
+
+TEST_F(SharedPtrTest, shouldCounterConstIfMoveAssignmentIsUsed){
+    constexpr int expectedCounterValue = 1;
+    cs::shared_ptr<int> movePtr;
+    movePtr = std::move(ptr);
+    ASSERT_EQ(movePtr.use_count(), expectedCounterValue);
+}
